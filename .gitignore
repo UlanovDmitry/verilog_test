@@ -1,2 +1,4 @@
 icarus-tests/*.vcd
 icarus-tests/qqq
+build/
+*.vcd
