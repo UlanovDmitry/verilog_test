@@ -1,0 +1,71 @@
+
+reg clk;
+reg [7:0] data_bus; // Наша шина данных
+reg [7:0] test_data [0:3]; // Массив с тестовыми числами
+
+// Инициализация тестовых данных
+initial begin
+    test_data[0] = 8'hAA;
+    test_data[1] = 8'hBB;
+    test_data[2] = 8'hCC;
+    test_data[3] = 8'hDD;
+end
+
+// Подача данных на шину
+initial begin
+    data_bus = 8'h00; // Начальное значение
+    @(posedge clk);   // Ждем первого такта синхронизации
+
+    for (int i = 0; i < 4; i++) begin
+        data_bus = test_data[i]; // Выставляем число на шину
+        
+        // Ждем ровно 32 такта перед следующим числом
+        repeat(32) @(posedge clk); 
+    end
+    
+    $finish; // Завершаем симуляцию
+end
+
+
+
+reg clk;
+reg [7:0] data_bus;
+integer clock_count = 0;
+integer index = 0;
+
+// Массив с данными
+reg [7:0] test_data [0:2] = '{8'd10, 8'd20, 8'd30};
+
+always @(posedge clk) begin
+    if (clock_count == 0) begin
+        data_bus <= test_data[index];
+        index <= index + 1;
+    end
+    
+    // Инкрементируем счетчик от 0 до 31 (всего 32 такта)
+    if (clock_count == 31) 
+        clock_count <= 0;
+    else 
+        clock_count <= clock_count + 1;
+end
+
+
+
+
+reg clk;
+reg [7:0] data_bus;
+reg [7:0] memory [0:255]; // Память для хранения данных из файла
+integer i;
+
+initial begin
+    // Загружаем данные из файла data.txt в массив memory
+    $readmemh("data.txt", memory);
+    
+    data_bus = 0;
+    @(posedge clk);
+
+    for (i = 0; i < 256; i = i + 1) begin
+        data_bus = memory[i];
+        repeat(32) @(posedge clk);
+    end
+end
